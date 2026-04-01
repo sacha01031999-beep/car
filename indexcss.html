@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Garage: Legends & Specs</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card: #111;
+            --blue: #0066b3; --red: #ff0000; --gold: #ffcc00; --orange: #ff6600;
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+            padding: 40px;
+            margin: 0;
+        }
+
+        h1 { text-align: center; letter-spacing: 15px; color: #1a1a1a; margin-bottom: 50px; font-size: 3rem; }
+
+        /* СІТКА */
+        .garage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* КАРТКА */
+        .car-card {
+            background: var(--card);
+            border-radius: 15px;
+            border: 1px solid #222;
+            transition: 0.3s;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .car-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 0 30px var(--accent); }
+
+        .lights { height: 130px; display: flex; justify-content: center; align-items: center; gap: 35px; background: #000; }
+
+        .eye { width: 45px; height: 45px; border: 3px solid #222; border-radius: 50%; animation: glow 2.5s infinite alternate ease-in-out; }
+
+        @keyframes glow {
+            0% { border-color: #222; box-shadow: none; }
+            100% { border-color: var(--accent); box-shadow: 0 0 20px var(--accent), inset 0 0 8px var(--accent); }
+        }
+
+        .line { height: 5px; background: var(--accent); }
+        .info { padding: 20px; text-align: center; }
+        .info h3 { margin: 0; font-size: 14px; text-transform: uppercase; }
+
+        /* СТИЛІ БРЕНДІВ */
+        .style-euro { --accent: var(--blue); }
+        .style-jdm { --accent: var(--red); }
+        .style-rally { --accent: var(--gold); }
+        .style-muscle { --accent: var(--orange); }
+
+        /* МОДАЛЬНЕ ВІКНО */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #111;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid var(--modal-color);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px var(--modal-color);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; color: #555; }
+        .close:hover { color: white; }
+
+        .modal-content h2 { margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase; color: var(--modal-color); }
+        .modal-specs { display: grid; gap: 15px; text-align: left; }
+        .spec-row { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .spec-label { color: #666; font-size: 0.75rem; text-transform: uppercase; }
+        .spec-value { font-size: 1rem; color: #eee; }
+    </style>
+</head>
+<body>
+
+    <h1>THE GARAGE</h1>
+
+    <div class="garage-grid" id="garage">
+        <!-- Машини додаються через JavaScript нижче -->
+    </div>
+
+    <!-- ВІКНО ХАРАКТЕРИСТИК -->
+    <div id="carModal" class="modal">
+        <div class="modal-content" id="modalContent">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Назва авто</h2>
+            <div class="modal-specs">
+                <div class="spec-row"><span class="spec-label">Двигун</span><span class="spec-value" id="specEngine">---</span></div>
+                <div class="spec-row"><span class="spec-label">Потужність</span><span class="spec-value" id="specPower">---</span></div>
+                <div class="spec-row"><span class="spec-label">0-100 км/год</span><span class="spec-value" id="specSpeed">---</span></div>
+                <div class="spec-row"><span class="spec-label">Привід</span><span class="spec-value" id="specDrive">---</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // БАЗА ДАНИХ МАШИН
+        const cars = [
+            { name: "BMW M5 CS", style: "style-euro", engine: "4.4L V8 Twin-Turbo", power: "635 к.с.", speed: "3.0 с", drive: "Повний (xDrive)" },
+            { name: "Toyota Supra", style: "style-jdm", engine: "3.0L L6 2JZ-GTE", power: "320 к.с.", speed: "4.6 с", drive: "Задній" },
+            { name: "Subaru STI", style: "style-rally", engine: "2.5L H4 Turbo", power: "310 к.с.", speed: "4.8 с", drive: "Повний (AWD)" },
+            { name: "Nissan GTR", style: "style-jdm", engine: "3.8L V6 Twin-Turbo", power: "570 к.с.", speed: "2.7 с", drive: "Повний (ATTESA)" },
+            { name: "Dodge Challenger", style: "style-muscle", engine: "6.2L HEMI V8", power: "717 к.с.", speed: "3.6 с", drive: "Задній" },
+            { name: "Porsche 911", style: "style-euro", engine: "3.0L Flat-6", power: "450 к.с.", speed: "3.4 с", drive: "Задній" },
+            { name: "Mazda RX-7", style: "style-jdm", engine: "1.3L Rotary", power: "280 к.с.", speed: "5.1 с", drive: "Задній" },
+            { name: "Mitsubishi Evo", style: "style-rally", engine: "2.0L I4 Turbo", power: "291 к.с.", speed: "4.9 с", drive: "Повний (S-AWC)" },
+            { name: "BMW M5 F90", style: "style-euro", engine: "V8", power: "600 к.с.", speed: "3.4", drive: "Повний (M xDrive)" }
+        ];
+
+        const grid = document.getElementById('garage');
+        const modal = document.getElementById('carModal');
+
+        // ГЕНЕРАЦІЯ КАРТОК
+        cars.forEach(car => {
+            const card = document.createElement('div');
+            card.className = `car-card ${car.style}`;
+            card.innerHTML = `
+                <div class="lights"><div class="eye"></div><div class="eye"></div></div>
+                <div class="line"></div>
+                <div class="info"><h3>${car.name}</h3></div>
+            `;
+            
+            // Клік по картці відкриває модалку
+            card.addEventListener('click', () => showSpecs(car));
+            grid.appendChild(card);
+        });
+
+        function showSpecs(car) {
+            document.getElementById('modalTitle').innerText = car.name;
+            document.getElementById('specEngine').innerText = car.engine;
+            document.getElementById('specPower').innerText = car.power;
+            document.getElementById('specSpeed').innerText = car.speed;
+            document.getElementById('specDrive').innerText = car.drive;
+            
+            // Визначаємо колір вікна за стилем картки
+            let color;
+            if(car.style === 'style-euro') color = '#0066b3';
+            else if(car.style === 'style-jdm') color = '#ff0000';
+            else if(car.style === 'style-rally') color = '#ffcc00';
+            else color = '#ff6600';
+
+            document.getElementById('modalContent').style.setProperty('--modal-color', color);
+            modal.style.display = "flex";
+        }
+
+        function closeModal() { modal.style.display = "none"; }
+
+        // Закрити кліком поза межами вікна
+        window.onclick = (e) => { if (e.target == modal) closeModal(); }
+    </script>
+</body>
+</html>
