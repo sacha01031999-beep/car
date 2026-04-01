@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Garage: Legends</title>
     <style>
-        /* --- ВЕСЬ ТВОЙ CSS ТЕПЕРЬ ТУТ --- */
+        
         :root {
             --bg: #050505;
             --card: #111;
@@ -82,13 +82,13 @@
         .info { padding: 25px; text-align: center; }
         .info h3 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase; }
 
-        /* ЦВЕТА БРЕНДОВ */
+        
         .style-euro { --accent: var(--blue); }
         .style-jdm { --accent: var(--red); }
         .style-rally { --accent: var(--gold); }
         .style-muscle { --accent: var(--orange); }
 
-        /* МОДАЛКА ХАРАКТЕРИСТИК */
+        
         .modal {
             display: none; 
             position: fixed;
@@ -138,7 +138,7 @@
     </div>
 
     <script>
-        // ТВОЙ СПИСОК МАШИН
+        
         const cars = [
             { name: "BMW M5 CS", style: "style-euro", eng: "4.4L V8 Twin-Turbo", hp: "635", top: "3.0s", awd: "AWD" },
             { name: "Toyota Supra", style: "style-jdm", eng: "3.0L 2JZ-GTE", hp: "320", top: "4.6s", awd: "RWD" },
@@ -148,6 +148,7 @@
             { name: "Audi RS6 Avant", style: "style-euro", eng: "4.0L V8 TFSI", hp: "600", top: "3.6s", awd: "Quattro" },
             { name: "Mazda RX-7 FD", style: "style-jdm", eng: "1.3L Rotary", hp: "280", top: "5.1s", awd: "RWD" },
             { name: "Mitsubishi Evo X", style: "style-rally", eng: "2.0L Turbo", hp: "291", top: "4.9s", awd: "AWD" }
+            { name: "BMW M5 F90", style: "style-euro", eng: "V8", hp: "600", top: "3.4", awd: "Повний (M xDrive)" }
         ];
 
         const grid = document.getElementById('mainGrid');
