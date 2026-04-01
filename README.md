@@ -1,1 +1,137 @@
-# car
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Garage | 20 Legends</title>
+    <style>
+        :root {
+            --bg: #050505; --card: #111;
+            --blue: #0066b3; --red: #ff0000; --gold: #ffcc00; --orange: #ff6600;
+        }
+
+        body {
+            background: var(--bg); color: white; font-family: 'Arial Black', sans-serif;
+            padding: 40px; margin: 0; display: flex; flex-direction: column; align-items: center;
+        }
+
+        h1 { text-align: center; letter-spacing: 15px; color: #1a1a1a; margin-bottom: 50px; font-size: clamp(2rem, 5vw, 3.5rem); text-transform: uppercase; }
+
+        .garage-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; width: 100%; max-width: 1400px;
+        }
+
+        .car-card {
+            background: var(--card); border-radius: 20px; border: 1px solid #222;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden; cursor: pointer;
+        }
+
+        .car-card:hover { transform: translateY(-15px); border-color: var(--accent); box-shadow: 0 10px 40px var(--accent); }
+
+        .lights { height: 150px; display: flex; justify-content: center; align-items: center; gap: 40px; background: #000; }
+
+        .eye { 
+            width: 50px; height: 50px; border: 4px solid #222; border-radius: 50%; 
+            animation: glow 3s infinite alternate ease-in-out; 
+        }
+
+        @keyframes glow { 100% { border-color: var(--accent); box-shadow: 0 0 25px var(--accent), inset 0 0 10px var(--accent); } }
+
+        .line { height: 6px; background: var(--accent); }
+        .info { padding: 25px; text-align: center; }
+        .info h3 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* Стилі категорій */
+        .style-euro { --accent: var(--blue); }
+        .style-jdm { --accent: var(--red); }
+        .style-rally { --accent: var(--gold); }
+        .style-muscle { --accent: var(--orange); }
+
+        /* Модальне вікно */
+        .modal {
+            display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); justify-content: center; align-items: center;
+        }
+
+        .modal-content {
+            background: #111; padding: 40px; border-radius: 25px; border: 2px solid var(--m-color);
+            max-width: 450px; width: 85%; box-shadow: 0 0 60px var(--m-color);
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-content h2 { text-align: center; margin-bottom: 25px; color: var(--m-color); text-transform: uppercase; }
+        .spec-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .spec-label { color: #666; font-size: 0.8rem; }
+        .close-btn { text-align: center; margin-top: 30px; cursor: pointer; color: #444; font-size: 14px; }
+        .close-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>THE GARAGE</h1>
+    <div class="garage-grid" id="mainGrid"></div>
+
+    <div id="carModal" class="modal">
+        <div class="modal-content" id="mContent">
+            <h2 id="mTitle">CAR NAME</h2>
+            <div class="spec-item"><span class="spec-label">ДВИГУН:</span><span id="mEngine"></span></div>
+            <div class="spec-item"><span class="spec-label">ПОТУЖНІСТЬ:</span><span id="mPower"></span></div>
+            <div class="spec-item"><span class="spec-label">0-100 КМ/ГОД:</span><span id="mSpeed"></span></div>
+            <div class="spec-item"><span class="spec-label">ПРИВІД:</span><span id="mDrive"></span></div>
+            <div class="close-btn" onclick="closeM()">ЗАКРИТИ [X]</div>
+        </div>
+    </div>
+
+    <script>
+        const cars = [
+            { name: "BMW M5 CS", style: "style-euro", eng: "4.4L V8 Twin-Turbo", hp: "635", top: "3.0s", awd: "AWD" },
+            { name: "Toyota Supra", style: "style-jdm", eng: "3.0L 2JZ-GTE", hp: "320", top: "4.6s", awd: "RWD" },
+            { name: "Subaru WRX STI", style: "style-rally", eng: "2.5L Turbo EJ25", hp: "310", top: "4.8s", awd: "AWD" },
+            { name: "Nissan GTR R34", style: "style-jdm", eng: "2.6L RB26DETT", hp: "280", top: "4.9s", awd: "AWD" },
+            { name: "Dodge Challenger", style: "style-muscle", eng: "6.2L V8 HEMI", hp: "717", top: "3.6s", awd: "RWD" },
+            { name: "Porsche 911 GT3", style: "style-euro", eng: "4.0L Flat-6", hp: "510", top: "3.4s", awd: "RWD" },
+            { name: "Mazda RX-7 FD", style: "style-jdm", eng: "1.3L Rotary", hp: "280", top: "5.1s", awd: "RWD" },
+            { name: "Mitsubishi Evo X", style: "style-rally", eng: "2.0L Turbo 4B11T", hp: "291", top: "4.9s", awd: "AWD" },
+            { name: "Ford Mustang GT", style: "style-muscle", eng: "5.0L V8 Coyote", hp: "450", top: "4.3s", awd: "RWD" },
+            { name: "Audi RS6 Avant", style: "style-euro", eng: "4.0L V8 TFSI", hp: "600", top: "3.6s", awd: "Quattro" },
+            { name: "Nissan Silvia S15", style: "style-jdm", eng: "2.0L SR20DET", hp: "250", top: "5.5s", awd: "RWD" },
+            { name: "Honda NSX", style: "style-jdm", eng: "3.2L V6 VTEC", hp: "290", top: "5.0s", awd: "RWD" },
+            { name: "Lexus LFA", style: "style-jdm", eng: "4.8L V10", hp: "560", top: "3.7s", awd: "RWD" },
+            { name: "BMW M3 E46", style: "style-euro", eng: "3.2L L6 S54", hp: "343", top: "5.1s", awd: "RWD" },
+            { name: "Chevrolet Camaro", style: "style-muscle", eng: "6.2L V8 LT1", hp: "455", top: "4.0s", awd: "RWD" },
+            { name: "VW Golf R", style: "style-euro", eng: "2.0L TSI", hp: "320", top: "4.7s", awd: "AWD" },
+            { name: "Toyota AE86", style: "style-jdm", eng: "1.6L 4A-GE", hp: "130", top: "8.5s", awd: "RWD" },
+            { name: "Subaru BRZ", style: "style-rally", eng: "2.4L Boxer", hp: "228", top: "6.0s", awd: "RWD" },
+            { name: "Mercedes C63 AMG", style: "style-euro", eng: "4.0L V8 BiTurbo", hp: "510", top: "3.9s", awd: "RWD" },
+            { name: "Lambo Huracan", style: "style-euro", eng: "5.2L V10", hp: "640", top: "2.9s", awd: "AWD" }
+        ];
+
+        const grid = document.getElementById('mainGrid');
+        cars.forEach(c => {
+            const div = document.createElement('div');
+            div.className = `car-card ${c.style}`;
+            div.innerHTML = `<div class="lights"><div class="eye"></div><div class="eye"></div></div><div class="line"></div><div class="info"><h3>${c.name}</h3></div>`;
+            div.onclick = () => openM(c);
+            grid.appendChild(div);
+        });
+
+        function openM(c) {
+            document.getElementById('mTitle').innerText = c.name;
+            document.getElementById('mEngine').innerText = c.eng;
+            document.getElementById('mPower').innerText = c.hp + " к.с.";
+            document.getElementById('mSpeed').innerText = c.top;
+            document.getElementById('mDrive').innerText = c.awd;
+            let clr = c.style === 'style-euro' ? '#0066b3' : c.style === 'style-jdm' ? '#ff0000' : c.style === 'style-rally' ? '#ffcc00' : '#ff6600';
+            document.getElementById('mContent').style.setProperty('--m-color', clr);
+            document.getElementById('carModal').style.display = 'flex';
+        }
+
+        function closeM() { document.getElementById('carModal').style.display = 'none'; }
+        window.onclick = (e) => { if(e.target == document.getElementById('carModal')) closeM(); }
+    </script>
+</body>
+</html>
